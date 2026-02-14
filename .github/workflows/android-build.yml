@@ -1,4 +1,4 @@
-name: Run Calendar Logic
+name: Build Android APK
 
 on:
   push:
@@ -17,14 +17,18 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+        cache: gradle
 
-    # કોટલીન કમ્પાઈલર સેટઅપ કરવાની સાચી રીત
-    - name: Install Kotlin
-      run: |
-        sudo snap install --classic kotlin
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      # જો તમારી પાસે gradlew ફાઇલ ન હોય, તો આ સ્ટેપ એરર આપી શકે છે. 
+      # આપણે આ પ્રોસેસ દ્વારા એન્ડ્રોઇડ બિલ્ડ ફાઇલો જનરેટ કરીશું.
 
-    - name: Compile and Run
-      run: |
-        # અહીં આપણે બધી ફાઈલો કમ્પાઈલ કરીશું
-        kotlinc src/main/kotlin/*.kt -include-runtime -d calendar.jar
-        java -jar calendar.jar
+    - name: Build with Gradle
+      run: ./gradlew assembleDebug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: remind-me-app
+        path: app/build/outputs/apk/debug/app-debug.apk
