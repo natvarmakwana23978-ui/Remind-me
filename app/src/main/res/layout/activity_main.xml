@@ -3,20 +3,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5">
+    android:background="#FFFFFF">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:background="#1976D2"
-        android:padding="10dp">
-
+        android:background="#1976D2">
         <TextView
-            android:id="@+id/calendarHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="ફેબ્રુઆરી ૨૦૨૬"
+            android:text="CALENDAR 2026"
             android:textColor="#FFFFFF"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -27,27 +24,19 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="#E3F2FD"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp">
-
-        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="રવિ" android:textAlignment="center" android:textColor="#D32F2F" android:textStyle="bold" />
-        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="સોમ" android:textAlignment="center" android:textColor="#333333" />
-        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="મંગળ" android:textAlignment="center" android:textColor="#333333" />
-        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="બુધ" android:textAlignment="center" android:textColor="#333333" />
-        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="ગુરુ" android:textAlignment="center" android:textColor="#333333" />
-        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="શુક્ર" android:textAlignment="center" android:textColor="#333333" />
-        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="શનિ" android:textAlignment="center" android:textColor="#333333" />
+        android:padding="8dp">
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="SUN" android:textAlignment="center" android:textColor="#D32F2F" android:textStyle="bold" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="MON" android:textAlignment="center" android:textColor="#333333" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="TUE" android:textAlignment="center" android:textColor="#333333" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="WED" android:textAlignment="center" android:textColor="#333333" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="THU" android:textAlignment="center" android:textColor="#333333" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="FRI" android:textAlignment="center" android:textColor="#333333" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="SAT" android:textAlignment="center" android:textColor="#333333" />
     </LinearLayout>
 
-    <GridView
-        android:id="@+id/calendarGrid"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/calendarRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:numColumns="7"
-        android:verticalSpacing="1dp"
-        android:horizontalSpacing="1dp"
-        android:stretchMode="columnWidth"
-        android:background="#CCCCCC"
-        android:padding="1dp" />
+        android:layout_height="match_parent" />
 
 </LinearLayout>
