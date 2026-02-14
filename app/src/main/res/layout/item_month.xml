@@ -3,24 +3,35 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:paddingHorizontal="20dp"
+    android:paddingVertical="15dp"
+    android:background="#FFFFFF">
 
     <TextView
         android:id="@+id/monthTitle"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#1976D2"
-        android:paddingBottom="8dp"
-        android:text="JANUARY 2026" />
+        android:textSize="24sp"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="#212121"
+        android:letterSpacing="0.05"
+        android:text="January 2026"
+        android:layout_marginBottom="12dp" />
 
     <GridView
         android:id="@+id/daysGrid"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="280dp"
         android:numColumns="7"
+        android:verticalSpacing="12dp"
+        android:horizontalSpacing="0dp"
         android:stretchMode="columnWidth"
-        android:scrollBleed="false"
-        android:enabled="false" />
+        android:listSelector="@android:color/transparent"
+        android:gravity="center" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#EEEEEE"
+        android:layout_marginTop="10dp"/>
 </LinearLayout>
