@@ -8,9 +8,11 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.BaseAdapter
 import android.widget.GridView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
 import java.util.*
@@ -63,28 +65,26 @@ class CalendarAdapter(private val months: List<Calendar>) :
 
                 if (days[p].isNotEmpty()) {
                     val dayNum = days[p].toInt()
-                    val isHoliday = getFestival(dayNum, monthFormat.format(calendar.time)).isNotEmpty()
+                    val festival = getFestival(dayNum, monthFormat.format(calendar.time))
                     
-                    // ૧. રવિવાર (Column 0) અને બીજો-ચોથો શનિવાર (Column 6) લાલ રંગમાં
                     val isSunday = (p % 7 == 0)
                     val isSaturday = (p % 7 == 6)
                     val isSecondSat = isSaturday && (dayNum in 8..14)
                     val isFourthSat = isSaturday && (dayNum in 22..28)
 
                     if (isSunday || isSecondSat || isFourthSat) {
-                        tv.setTextColor(Color.parseColor("#D32F2F")) // Red
+                        tv.setTextColor(Color.parseColor("#D32F2F"))
                         tv.setTypeface(null, Typeface.BOLD)
                     } else {
                         tv.setTextColor(Color.parseColor("#212121"))
                     }
 
-                    // ૨. તહેવાર વાળી તારીખ માટે બેકગ્રાઉન્ડ હાઈલાઈટ
-                    if (isHoliday) {
+                    if (festival.isNotEmpty()) {
                         val shape = GradientDrawable()
                         shape.cornerRadius = 15f
-                        shape.setColor(Color.parseColor("#FFF9C4")) // Light Gold
+                        shape.setColor(Color.parseColor("#FFF9C4"))
                         tv.background = shape
-                        tv.setTextColor(Color.parseColor("#FF6F00")) // Orange-ish Text
+                        tv.setTextColor(Color.parseColor("#FF6F00"))
                     }
 
                     tv.setOnClickListener {
@@ -101,6 +101,7 @@ class CalendarAdapter(private val months: List<Calendar>) :
             "January 2026" -> when(day) {
                 1 -> "New Year's Day"
                 14 -> "Uttarayan"
+                22 -> "Vasant Panchami"
                 26 -> "Republic Day"
                 else -> ""
             }
@@ -111,17 +112,33 @@ class CalendarAdapter(private val months: List<Calendar>) :
             }
             "March 2026" -> when(day) {
                 4 -> "Holi"
+                19 -> "Gudi Padwa"
                 20 -> "Eid-ul-Fitr"
                 27 -> "Ram Navami"
                 else -> ""
             }
             "April 2026" -> when(day) {
+                1 -> "April Fools Day"
                 3 -> "Good Friday"
                 14 -> "Ambedkar Jayanti"
                 else -> ""
             }
+            "May 2026" -> when(day) {
+                1 -> "Gujarat Day"
+                10 -> "Mother's Day"
+                else -> ""
+            }
+            "June 2026" -> when(day) {
+                21 -> "Yoga Day / Father's Day"
+                else -> ""
+            }
+            "July 2026" -> when(day) {
+                29 -> "Guru Purnima"
+                else -> ""
+            }
             "August 2026" -> when(day) {
                 15 -> "Independence Day"
+                26 -> "Onam"
                 28 -> "Raksha Bandhan"
                 else -> ""
             }
@@ -137,12 +154,13 @@ class CalendarAdapter(private val months: List<Calendar>) :
             }
             "November 2026" -> when(day) {
                 8 -> "Diwali"
-                9 -> "Gujarati New Year"
+                9 -> "New Year (Gujarati)"
                 10 -> "Bhai Dooj"
                 else -> ""
             }
             "December 2026" -> when(day) {
                 25 -> "Christmas"
+                31 -> "New Year's Eve"
                 else -> ""
             }
             else -> ""
@@ -155,15 +173,39 @@ class CalendarAdapter(private val months: List<Calendar>) :
         
         if (festival.isNotEmpty()) reminders.add("⭐ $festival")
         
-        reminders.add("📁 File Income Tax Return")
+        reminders.add("📂 File Income Tax Return")
         reminders.add("🛒 Purchase Grocery")
         reminders.add("🏥 Hospital Health Checkup")
         reminders.add("🎂 Happy Birthday")
 
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Reminders: $day $monthYear")
-        builder.setMessage("• " + reminders.joinToString("\n\n• "))
-        builder.setPositiveButton("OK") { d, _ -> d.dismiss() }
+
+        // લિસ્ટને ક્લિકેબલ બનાવવા માટે ArrayAdapter નો ઉપયોગ
+        val adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, reminders)
+        
+        builder.setAdapter(adapter) { _, which ->
+            val selectedReminder = reminders[which]
+            // રિમાઇન્ડર પર ક્લિક કરવાથી સેટિંગ ઓપ્શન ખુલશે
+            showSettingDialog(context, selectedReminder)
+        }
+
+        builder.setNegativeButton("Close") { d, _ -> d.dismiss() }
+        builder.show()
+    }
+
+    private fun showSettingDialog(context: android.content.Context, reminderTitle: String) {
+        val options = arrayOf("Edit Reminder", "Delete", "Set Notification Time")
+        
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle("Settings: $reminderTitle")
+        builder.setItems(options) { _, which ->
+            when (which) {
+                0 -> Toast.makeText(context, "Opening Edit Screen...", Toast.LENGTH_SHORT).show()
+                1 -> Toast.makeText(context, "Reminder Deleted", Toast.LENGTH_SHORT).show()
+                2 -> Toast.makeText(context, "Opening Timer...", Toast.LENGTH_SHORT).show()
+            }
+        }
         builder.show()
     }
 
