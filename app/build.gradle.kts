@@ -33,11 +33,12 @@ android {
 }
 
 dependencies {
+    // બેઝિક એન્ડ્રોઇડ લાઇબ્રેરીઓ
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     
-    // ગૂગલ શીટ્સનો ડેટા વાંચવા માટેની જરૂરી લાઈબ્રેરીઓ
+    // ગૂગલ શીટ્સનો ડેટા વાંચવા માટે કોરુટિન્સ
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 }
