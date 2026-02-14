@@ -19,9 +19,11 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    # અહીં આપણે પ્રોજેક્ટમાં રહેલા gradlew ને બદલે GitHub ના પોતાના Gradle નો ઉપયોગ કરીશું
+    # અહીં આપણે ગ્રેડલનું વર્ઝન 8.5 ફિક્સ કરી રહ્યા છીએ
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: 8.5
 
     - name: Build with Gradle
       run: gradle assembleDebug
