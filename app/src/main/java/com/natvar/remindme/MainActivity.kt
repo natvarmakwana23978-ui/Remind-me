@@ -4,43 +4,53 @@ import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.GridView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import java.util.*
+import kotlinx.coroutines.*
+import org.json.JSONArray
+import java.net.URL
 
 class MainActivity : AppCompatActivity() {
+
+    // તમારી ગૂગલ શીટની 'Web App' લિંક અહીં મૂકવી
+    private val sheetUrl = "તમારી_લિન્ક_અહીં_મૂકો"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val calendarGrid: GridView = findViewById(R.id.calendarGrid)
         val calendarHeader: TextView = findViewById(R.id.calendarHeader)
+        val calendarGrid: GridView = findViewById(R.id.calendarGrid)
 
-        // અત્યારનો મહિનો અને વર્ષ મેળવવા
-        val calendar = Calendar.getInstance()
-        val currentMonth = calendar.get(Calendar.MONTH) + 1
-        val currentYear = 2026
+        calendarHeader.text = "ફેબ્રુઆરી ૨૦૨૬ (લોડ થઈ રહ્યું છે...)"
 
-        calendarHeader.text = "FEBRUARY 2026"
+        // ગૂગલ શીટ્સમાંથી ડેટા લાવવાનું કામ શરૂ કરો
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // શીટ્સમાંથી ડેટા ખેંચવો
+                val result = URL(sheetUrl).readText()
+                val jsonArray = JSONArray(result)
+                val displayList = mutableListOf<String>()
 
-        // આપણે અગાઉ બનાવેલા CalendarLogic નો ઉપયોગ કરીને તારીખો મેળવવી
-        val logic = CalendarLogic()
-        val dates = logic.getDatesInMonth(currentYear, currentMonth)
-        
-        // એન્ડ્રોઇડ લિસ્ટમાં બતાવવા માટે માત્ર તારીખોના આંકડા અલગ કરવા
-        val dateStrings = mutableListOf<String>()
-        
-        // મહિનાની શરૂઆતના ખાલી ખાના (Spaces) ઉમેરવા
-        val startDay = Calendar.getInstance().apply { set(2026, 1, 1) }.get(Calendar.DAY_OF_WEEK)
-        for (i in 1 until startDay) {
-            dateStrings.add("")
+                // ડેટાને લિસ્ટમાં ગોઠવવો
+                for (i in 0 until jsonArray.length()) {
+                    val obj = jsonArray.getJSONObject(i)
+                    val date = obj.getString("date")
+                    val event = obj.getString("event")
+                    displayList.add("$date - $event")
+                }
+
+                // સ્ક્રીન પર ડેટા બતાવવો
+                withContext(Dispatchers.Main) {
+                    calendarHeader.text = "મારા રિમાઇન્ડર્સ"
+                    val adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_list_item_1, displayList)
+                    calendarGrid.adapter = adapter
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "ડેટા લોડ કરવામાં ભૂલ આવી!", Toast.LENGTH_LONG).show()
+                }
+            }
         }
-
-        dates.forEach { dateStrings.add(it.dayOfMonth.toString()) }
-
-        // એડેપ્ટર દ્વારા ગ્રીડમાં તારીખો સેટ કરવી
-        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, dateStrings)
-        calendarGrid.adapter = adapter
     }
 }
-
