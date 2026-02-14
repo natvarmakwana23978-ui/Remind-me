@@ -1,1 +1,25 @@
+name: Run Calendar Logic
 
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Compile and Run
+      run: |
+        sudo apt-get install kotlinc -y
+        kotlinc src/main/kotlin/*.kt -include-runtime -d calendar.jar
+        java -jar calendar.jar
