@@ -18,8 +18,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    # કોટલીન કમ્પાઈલર સેટઅપ કરવાની સાચી રીત
+    - name: Install Kotlin
+      run: |
+        sudo snap install --classic kotlin
+
     - name: Compile and Run
       run: |
-        sudo apt-get install kotlinc -y
+        # અહીં આપણે બધી ફાઈલો કમ્પાઈલ કરીશું
         kotlinc src/main/kotlin/*.kt -include-runtime -d calendar.jar
         java -jar calendar.jar
