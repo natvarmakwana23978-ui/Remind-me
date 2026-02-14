@@ -9,23 +9,27 @@ fun main() {
 
     for (month in allMonths) {
         println("---------- ${month.monthName} ----------")
-        println("Mo  Tu  We  Th  Fr  Sa  Su") // વારના નામ
+        // તમારી સૂચના મુજબનું નવું હેડર (રવિવારથી શરૂ)
+        println("S   M   T   W   T   F   S") 
         
-        // મહિનાની શરૂઆત પહેલા ખાલી જગ્યા માટે
-        for (i in 1 until month.startDayOfWeek) {
+        // રવિવારથી શરૂ થતા કેલેન્ડરમાં ખાલી જગ્યાનું લોજિક
+        // જો startDayOfWeek ૧(Mo) હોય તો ૧ ખાલી જગ્યા, ૭(Su) હોય તો ૦.
+        val spaces = if (month.startDayOfWeek == 7) 0 else month.startDayOfWeek
+        
+        for (i in 0 until spaces) {
             print("    ")
         }
 
         for (day in 1..month.totalDays) {
-            // રવિવાર હોય તો તારીખની બાજુમાં (S) બતાવશે
-            val isSun = (day + month.startDayOfWeek - 1) % 7 == 0
-            if (isSun) {
-                print(String.format("%02d(S)", day))
-            } else {
-                print(String.format("%02d  ", day))
-            }
+            // ફક્ત તારીખ પ્રિન્ટ થશે, (S) કાઢી નાખ્યું છે
+            print(String.format("%02d  ", day))
             
-            if (isSun) println() else print("  ")
+            // જો અઠવાડિયું પૂરું થાય તો નવી લાઈન
+            if ((day + spaces) % 7 == 0) {
+                println()
+            } else {
+                print("  ")
+            }
         }
         println("\n") 
     }
