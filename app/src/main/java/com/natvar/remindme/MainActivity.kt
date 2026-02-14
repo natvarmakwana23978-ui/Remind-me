@@ -1,56 +1,53 @@
 package com.natvar.remindme
 
+import android.graphics.Color
 import android.os.Bundle
+import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.GridView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.coroutines.*
-import org.json.JSONArray
-import java.net.URL
 
 class MainActivity : AppCompatActivity() {
-
-    // તમારી ગૂગલ શીટની 'Web App' લિંક અહીં મૂકવી
-    private val sheetUrl = "https://script.google.com/macros/s/AKfycbxgAC_Vg3d7c5P5iyieEmqSGM1AqGjW3tXC36wk1rx4yJR0NuE8_Bc90W0NyTadxcA/"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val calendarHeader: TextView = findViewById(R.id.calendarHeader)
         val calendarGrid: GridView = findViewById(R.id.calendarGrid)
+        
+        // ફેબ્રુઆરી ૨૦૨૬ માટે ૧ થી ૨૮ તારીખો (અંગ્રેજીમાં)
+        val dates = Array(28) { (it + 1).toString() }
 
-        calendarHeader.text = "ફેબ્રુઆરી ૨૦૨૬ (લોડ થઈ રહ્યું છે...)"
-
-        // ગૂગલ શીટ્સમાંથી ડેટા લાવવાનું કામ શરૂ કરો
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                // શીટ્સમાંથી ડેટા ખેંચવો
-                val result = URL(sheetUrl).readText()
-                val jsonArray = JSONArray(result)
-                val displayList = mutableListOf<String>()
-
-                // ડેટાને લિસ્ટમાં ગોઠવવો
-                for (i in 0 until jsonArray.length()) {
-                    val obj = jsonArray.getJSONObject(i)
-                    val date = obj.getString("date")
-                    val event = obj.getString("event")
-                    displayList.add("$date - $event")
+        val adapter = object : ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, dates) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = super.getView(position, convertView, parent) as TextView
+                
+                // દરેક ખાનાની ડિઝાઇન
+                view.setBackgroundColor(Color.WHITE)
+                view.textSize = 18f
+                view.setTextColor(Color.BLACK)
+                view.gravity = Gravity.CENTER
+                
+                // ખાનાની ઊંચાઈ સેટ કરવી (જેથી કેલેન્ડર ચોરસ દેખાય)
+                val params = view.layoutParams ?: ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, 
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                view.layoutParams = params
+                view.height = 150 // પિક્સેલ્સમાં ઊંચાઈ
+                
+                // રવિવારની તારીખ (1, 8, 15, 22) લાલ રંગમાં
+                if (position % 7 == 0) {
+                    view.setTextColor(Color.RED)
                 }
-
-                // સ્ક્રીન પર ડેટા બતાવવો
-                withContext(Dispatchers.Main) {
-                    calendarHeader.text = "મારા રિમાઇન્ડર્સ"
-                    val adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_list_item_1, displayList)
-                    calendarGrid.adapter = adapter
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@MainActivity, "ડેટા લોડ કરવામાં ભૂલ આવી!", Toast.LENGTH_LONG).show()
-                }
+                
+                return view
             }
         }
+
+        calendarGrid.adapter = adapter
     }
 }
