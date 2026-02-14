@@ -1,6 +1,6 @@
 plugins {
-    id("com.android.application") version "8.1.1"
-    id("org.jetbrains.kotlin.android") version "1.8.10"
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -16,9 +16,15 @@ android {
     }
 
     buildTypes {
-        getByName("release") {
+        release {
             isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
+    }
+    
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     
     kotlinOptions {
@@ -31,5 +37,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    
+    // ગૂગલ શીટ્સનો ડેટા વાંચવા માટેની જરૂરી લાઈબ્રેરીઓ
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 }
-
