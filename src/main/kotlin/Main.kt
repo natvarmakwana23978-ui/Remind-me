@@ -2,18 +2,22 @@ fun main() {
     val year = 2026
     val calendar = YearlyCalendar()
     val allMonths = calendar.getFullYear(year)
+    
+    // નમૂના માટેના રીમાઇન્ડર્સ (આ ડેટા પછીથી શીટ્સમાંથી આવશે)
+    val reminders = mapOf(
+        "2026-01-14" to "ઉતરાયણ",
+        "2026-02-14" to "શનિ પ્રદોષ પૂજા",
+        "2026-03-01" to "હોળી"
+    )
 
     println("=====================================")
-    println("      ENGLISH CALENDAR - $year       ")
+    println("      REMIND ME CALENDAR - $year      ")
     println("=====================================\n")
 
     for (month in allMonths) {
         println("---------- ${month.monthName} ----------")
-        // તમારી સૂચના મુજબનું નવું હેડર (રવિવારથી શરૂ)
         println("S   M   T   W   T   F   S") 
         
-        // રવિવારથી શરૂ થતા કેલેન્ડરમાં ખાલી જગ્યાનું લોજિક
-        // જો startDayOfWeek ૧(Mo) હોય તો ૧ ખાલી જગ્યા, ૭(Su) હોય તો ૦.
         val spaces = if (month.startDayOfWeek == 7) 0 else month.startDayOfWeek
         
         for (i in 0 until spaces) {
@@ -21,14 +25,27 @@ fun main() {
         }
 
         for (day in 1..month.totalDays) {
-            // ફક્ત તારીખ પ્રિન્ટ થશે, (S) કાઢી નાખ્યું છે
-            print(String.format("%02d  ", day))
+            val dateKey = String.format("%d-%02d-%02d", year, allMonths.indexOf(month) + 1, day)
             
-            // જો અઠવાડિયું પૂરું થાય તો નવી લાઈન
+            // જો રીમાઇન્ડર હોય તો તારીખની બાજુમાં '*' મૂકવો
+            if (reminders.containsKey(dateKey)) {
+                print(String.format("%02d* ", day))
+            } else {
+                print(String.format("%02d  ", day))
+            }
+            
             if ((day + spaces) % 7 == 0) {
                 println()
             } else {
                 print("  ")
+            }
+        }
+        
+        // મહિનાના અંતે તે મહિનાના રીમાઇન્ડરનું લિસ્ટ બતાવવું
+        println("\n\n--- આ મહિનાના રીમાઇન્ડર ---")
+        reminders.forEach { (date, title) ->
+            if (date.startsWith(String.format("%d-%02d", year, allMonths.indexOf(month) + 1))) {
+                println("• $date: $title")
             }
         }
         println("\n") 
