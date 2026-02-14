@@ -35,7 +35,6 @@ class CalendarAdapter(private val months: List<Calendar>) :
         val days = mutableListOf<String>()
         val tempCal = calendar.clone() as Calendar
         tempCal.set(Calendar.DAY_OF_MONTH, 1)
-        
         val firstDayOfWeek = tempCal.get(Calendar.DAY_OF_WEEK) - 1
         for (i in 0 until firstDayOfWeek) days.add("")
         val daysInMonth = tempCal.getActualMaximum(Calendar.DAY_OF_MONTH)
@@ -56,17 +55,17 @@ class CalendarAdapter(private val months: List<Calendar>) :
 
                 if (days[p].isNotEmpty()) {
                     val dayNum = days[p].toInt()
-                    val festival = getFestival(dayNum, monthFormat.format(calendar.time))
+                    val fest = getFestival(dayNum, monthFormat.format(calendar.time))
                     
-                    // રવિવાર અને ૨-૪ શનિવાર લાલ
-                    val isSunday = (p % 7 == 0)
-                    val isSaturday = (p % 7 == 6)
-                    if (isSunday || (isSaturday && (dayNum in 8..14 || dayNum in 22..28))) {
+                    // ૨-૪ શનિવાર અને રવિવાર લાલ રંગમાં
+                    val isSun = (p % 7 == 0)
+                    val isSat = (p % 7 == 6)
+                    if (isSun || (isSat && (dayNum in 8..14 || dayNum in 22..28))) {
                         tv.setTextColor(Color.parseColor("#D32F2F"))
                     }
 
-                    // તહેવાર હાઈલાઈટ
-                    if (festival.isNotEmpty()) {
+                    // તહેવાર માટે બેકગ્રાઉન્ડ
+                    if (fest.isNotEmpty()) {
                         val shape = GradientDrawable()
                         shape.cornerRadius = 15f
                         shape.setColor(Color.parseColor("#FFF9C4"))
@@ -82,7 +81,6 @@ class CalendarAdapter(private val months: List<Calendar>) :
         }
     }
 
-    // તહેવારોનું લિસ્ટ (તમારા સ્ક્રીનશોટ મુજબ)
     private fun getFestival(day: Int, monthYear: String): String {
         return when (monthYear) {
             "January 2026" -> when(day) { 1 -> "New Year"; 14 -> "Uttarayan"; 26 -> "Republic Day"; else -> "" }
@@ -92,49 +90,55 @@ class CalendarAdapter(private val months: List<Calendar>) :
     }
 
     private fun showReminderDialog(context: Context, day: String, monthYear: String) {
-        val sharedPref = context.getSharedPreferences("Reminders", Context.MODE_PRIVATE)
         val key = "$day-$monthYear"
-        
-        // સેવ કરેલા રિમાઇન્ડર મેળવવા
-        val savedReminder = sharedPref.getString(key, "No custom reminder set") ?: ""
+        val sharedPref = context.getSharedPreferences("Reminders", Context.MODE_PRIVATE)
+        val savedNotes = sharedPref.getStringSet(key, mutableSetOf())?.toMutableList() ?: mutableListOf()
 
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Reminders: $day $monthYear")
-        
-        val list = mutableListOf<String>()
-        val fest = getFestival(day.toInt(), monthYear)
-        if (fest.isNotEmpty()) list.add("⭐ $fest")
-        list.add("📝 Custom: $savedReminder")
-        list.add("📁 File Income Tax")
-        list.add("🛒 Grocery")
 
-        builder.setItems(list.toTypedArray()) { _, _ ->
-            showEditDialog(context, day, monthYear)
+        val displayList = mutableListOf<String>()
+        val fest = getFestival(day.toInt(), monthYear)
+        if (fest.isNotEmpty()) displayList.add("⭐ $fest")
+        displayList.addAll(savedNotes)
+
+        val adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, displayList)
+        builder.setAdapter(adapter) { _, which ->
+            // ક્લિક કરવા પર એડિટ/રિમૂવ ઓપ્શન
+            showActionDialog(context, key, displayList[which], which)
         }
+
+        builder.setPositiveButton("Add New") { _, _ -> showAddDialog(context, key) }
         builder.setNegativeButton("Close", null)
         builder.show()
     }
 
-    // રિમાઇન્ડર સેવ કરવા માટેનો અસલી ડાયલોગ
-    private fun showEditDialog(context: Context, day: String, monthYear: String) {
-        val builder = AlertDialog.Builder(context)
-        builder.setTitle("Set Reminder for $day $monthYear")
-        
+    private fun showAddDialog(context: Context, key: String) {
         val input = EditText(context)
-        input.hint = "Enter your task here..."
-        builder.setView(input)
+        input.hint = "નવું રિમાઇન્ડર લખો..."
+        AlertDialog.Builder(context).setTitle("Add Reminder").setView(input)
+            .setPositiveButton("Save") { _, _ ->
+                val sharedPref = context.getSharedPreferences("Reminders", Context.MODE_PRIVATE)
+                val currentSet = sharedPref.getStringSet(key, mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+                currentSet.add(input.text.toString())
+                sharedPref.edit().putStringSet(key, currentSet).apply()
+                Toast.makeText(context, "સેવ થઈ ગયું!", Toast.LENGTH_SHORT).show()
+            }.show()
+    }
 
-        builder.setPositiveButton("SAVE") { _, _ ->
-            val text = input.text.toString()
-            val sharedPref = context.getSharedPreferences("Reminders", Context.MODE_PRIVATE)
-            with(sharedPref.edit()) {
-                putString("$day-$monthYear", text)
-                apply() // અહીં ડેટા સેવ થશે
+    private fun showActionDialog(context: Context, key: String, content: String, index: Int) {
+        val options = arrayOf("Delete Reminder", "Set Notification Time")
+        AlertDialog.Builder(context).setTitle("Options: $content").setItems(options) { _, which ->
+            if (which == 0) {
+                val sharedPref = context.getSharedPreferences("Reminders", Context.MODE_PRIVATE)
+                val currentSet = sharedPref.getStringSet(key, mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+                currentSet.remove(content)
+                sharedPref.edit().putStringSet(key, currentSet).apply()
+                Toast.makeText(context, "ડીલીટ થઈ ગયું!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "Timer સેટિંગ શરૂ કરો...", Toast.LENGTH_SHORT).show()
             }
-            Toast.makeText(context, "Reminder Saved!", Toast.LENGTH_SHORT).show()
-        }
-        builder.setNegativeButton("Cancel", null)
-        builder.show()
+        }.show()
     }
 
     override fun getItemCount(): Int = months.size
