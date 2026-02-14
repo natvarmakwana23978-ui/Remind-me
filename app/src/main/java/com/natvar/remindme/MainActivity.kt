@@ -13,7 +13,7 @@ import java.net.URL
 class MainActivity : AppCompatActivity() {
 
     // તમારી ગૂગલ શીટની 'Web App' લિંક અહીં મૂકવી
-    private val sheetUrl = "તમારી_લિન્ક_અહીં_મૂકો"
+    private val sheetUrl = "https://script.google.com/macros/s/AKfycbxgAC_Vg3d7c5P5iyieEmqSGM1AqGjW3tXC36wk1rx4yJR0NuE8_Bc90W0NyTadxcA/"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
