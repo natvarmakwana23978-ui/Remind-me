@@ -3,68 +3,47 @@ package com.natvar.remindme
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.ArrayAdapter
-import android.widget.ListView
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 
 class SelectionActivity : AppCompatActivity() {
 
-    // તમારી ગૂગલ શીટ મુજબના ૨૭ કેલેન્ડરની યાદી [cite: 2026-02-07]
-    private val calendarTypes = arrayOf(
-        "ENGLISH", "ગુજરાતી (Gujarati)", "हिन्दी (Hindi)", "ઇસ્લામિક (Islamic)",
-        "తెలుగు/ಕನ್ನಡ (Telugu/Kannada)", "தமிழ் (Tamil)", "മലയാളം (Malayalam)",
-        "ਪੰਜਾਬੀ (Punjabi)", "ଓଡ଼ିଆ (Odia)", "বাংলা (Bengali)", "नेपाली (Nepali)",
-        "中文 (Chinese)", "עברית (Hebrew)", "فارસી (Persian)", "ኢትዮጵያ (Ethiopian)",
-        "Basa Bali (Balinese)", "한국어 (Korean)", "Tiếng Việt (Vietnamese)",
-        "ไทย (Thai)", "Français (French)", "မြန်မာဘာသာ (Burmese)",
-        "کاشمیری (Kashmiri)", "મારવાડી (Marwari)", "日本語 (Japanese)",
-        "অসমীয়া (Assamese)", "سنڌી (Sindhi)", "བོད་སྐད (Tibetan)",
-        "➕ Create New Calendar" // તમારું પગલું ૩ [cite: 2026-02-14]
-    )
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        // ડાયનેમિક લિસ્ટ વ્યૂ બનાવવો
-        val listView = ListView(this)
-        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, calendarTypes)
-        listView.adapter = adapter
+        setContentView(R.layout.activity_selection)
 
-        // હેડર સેટ કરવું
-        val header = TextView(this)
-        header.text = "Select Your Calendar System"
-        header.textSize = 22f
-        header.setPadding(40, 40, 40, 40)
-        header.setTextColor(resources.getColor(R.color.purple_700))
-        listView.addHeaderView(header)
+        val spinnerLanguage = findViewById<Spinner>(R.id.spinnerLanguage)
+        val spinnerCalendar = findViewById<Spinner>(R.id.spinnerCalendar)
+        val btnNext = findViewById<Button>(R.id.btnNext)
 
-        setContentView(listView)
+        // ૧. ભાષાનું લિસ્ટ (ઉદાહરણ મુજબ)
+        val languages = arrayOf("ગુજરાતી", "Hindi", "English", "Tamil", "Arabic")
+        val langAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, languages)
+        spinnerLanguage.adapter = langAdapter
 
-        listView.setOnItemClickListener { _, _, position, _ ->
-            // હેડરને કારણે પોઝિશન ૧ થી શરૂ થશે
-            if (position > 0) {
-                val selected = calendarTypes[position - 1]
-                
-                if (selected == "➕ Create New Calendar") {
-                    // નવું કેલેન્ડર બનાવવાનું ફોર્મ ખોલવું (પગલું ૪)
-                    Toast.makeText(this, "Opening Calendar Builder...", Toast.LENGTH_SHORT).show()
-                } else {
-                    // પસંદગી સેવ કરવી
-                    saveSelection(selected)
-                    // મુખ્ય કેલેન્ડર સ્ક્રીન પર જવું
-                    startActivity(Intent(this, MainActivity::class.java))
-                    finish()
-                }
+        // ૨. ૨૭ કેલેન્ડરનું લિસ્ટ [cite: 2026-02-07]
+        val calendars = arrayOf(
+            "વિક્રમ સંવત (Gujarati)", "Islamic (Hijri)", "Chinese Calendar", 
+            "Hebrew Calendar", "Buddhist Calendar", "Tamil Calendar", "English Calendar"
+        )
+        val calAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, calendars)
+        spinnerCalendar.adapter = calAdapter
+
+        btnNext.setOnClickListener {
+            val selectedLang = spinnerLanguage.selectedItem.toString()
+            val selectedCal = spinnerCalendar.selectedItem.toString()
+
+            // પસંદગી સેવ કરવી
+            val sharedPref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
+            with(sharedPref.edit()) {
+                putString("user_language", selectedLang)
+                putString("user_calendar", selectedCal)
+                apply()
             }
-        }
-    }
 
-    private fun saveSelection(calendarName: String) {
-        val sharedPref = getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
-        with(sharedPref.edit()) {
-            putString("selected_calendar", calendarName)
-            apply()
+            // આગળની સ્ક્રીન પર જવું (MainActivity અથવા Calendar Builder)
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
         }
     }
 }
